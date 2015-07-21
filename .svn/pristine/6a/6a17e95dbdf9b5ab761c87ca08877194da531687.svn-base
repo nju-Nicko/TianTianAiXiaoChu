@@ -1,0 +1,22 @@
+package presentation_singleGameGUI;
+
+public class updategui extends Thread{
+	singleGameGUI game;
+	public updategui(singleGameGUI game){
+		this.game=game;
+	}
+	@Override
+	public void run(){
+		while(true){
+			game.frame.repaint();
+			game.frame.validate();
+			try {
+				sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	
+		}
+}

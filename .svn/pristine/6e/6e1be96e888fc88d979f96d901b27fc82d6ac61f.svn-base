@@ -1,0 +1,46 @@
+package presentation.gameui;
+
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+
+
+public class collaborationGameGUI_powerpane extends collaborationGameGUI {
+public void initlizePowerpane(){
+	PowerPanel powerpanel = new PowerPanel();
+	powerpanel.setBounds(70, 550, 450, 80);
+	// powerpanel.setOpaque(false);
+	pane.add(powerpanel);
+}
+class PowerPanel extends JPanel {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	public void paintComponent(Graphics h) {
+		String powerName=null;
+		switch(doublehitCount){
+		case 0:powerName="powerA.jpg";break;
+		case 1:powerName="powerB.jpg";break;
+		case 2:powerName="powerC.jpg";break;
+		case 3:powerName="powerD.jpg";break;
+		case 4:powerName="powerE.jpg";break;
+		case 5:powerName="super.gif";break;
+		}
+		if(perfectState){
+			powerName="super.gif";
+		}
+		h.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 16));
+		// g.drawString("ÄÜÁ¿¶¯Ì¬Öá", 0, 10);
+    
+		java.net.URL imgurl = collaborationGameGUI.class
+				.getResource("/bin/"+powerName);
+		Image image = new ImageIcon(imgurl).getImage();
+		h.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), this);
+	}
+}
+
+}

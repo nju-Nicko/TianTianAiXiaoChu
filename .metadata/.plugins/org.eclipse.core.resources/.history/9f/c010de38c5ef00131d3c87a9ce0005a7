@@ -1,0 +1,60 @@
+package net;
+
+import java.io.IOException;
+
+public class Test {
+	public Object lock = new Object();
+	public Net net;
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void go() {
+		try {
+			net=new Net();
+			Thread1 t1 = new Thread1();
+			Thread2 t2 = new Thread2();
+			t1.start();
+			t2.start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public class Thread1 extends Thread {
+		public void run() {
+			while (true) {
+				synchronized (lock) {
+					lock.notifyAll();
+					System.out.println("Thread1在运行");
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public class Thread2 extends Thread {
+		public void run() {
+			while (true) {
+				synchronized (lock) {
+					lock.notifyAll();
+					System.out.println("Thread2在运行");
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+}

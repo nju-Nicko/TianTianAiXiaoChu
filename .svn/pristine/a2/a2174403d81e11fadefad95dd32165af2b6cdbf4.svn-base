@@ -1,0 +1,733 @@
+package presentation_pkGameGUI;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+public class pkGameGUI_cplayer_gamepane extends pkGameGUI {
+	static GamePanel gamepanel;
+	
+public void initlizeGamepane(){
+	 gamepanel = new GamePanel();
+	gamepanel.setBounds(590, 100, 450, 450);
+	gamepanel.setBackground(Color.GREEN);
+	gamepanel.setOpaque(false);
+	pane.add(gamepanel);
+
+			
+		}
+
+class GamePanel extends JPanel {
+	/**
+ * 
+ */
+	private Boolean isLoop = false;
+	public int exchangex1;
+	public int exchangey1;
+	public int exchangex2;
+	public int exchangey2;
+    public int color1;
+    public int color2;
+    public void exchangeRebulidGame(int[][] rebuild,int length,int y){
+    	int x=rebuild[8][y];
+    	int nexy=0;
+    	for(int i=0;i<length;i++){
+    		if(i==0){
+    			//交换
+    			nexy=x;
+    			x=rebuild[0][y];
+    			rebuild[0][y]=nexy;
+    		}else{
+    			nexy=rebuild[i][y];
+    			rebuild[i][y]=x;
+    			x=nexy;
+    		}
+    	}
+    }
+    public int getLineOfRow(int[][] gr,int line,int length){
+    	boolean ishave=false;
+    	int result=-1;
+    	for(int i=length-1;i>-1;i--){
+    		if(gr[i][line]==0){
+    			result= i;
+    			ishave=true;
+    			break;
+    		}
+    	}
+    	if(!ishave){
+    		return -1;//表示该列没有可消除的行
+    	}else{
+    		return result;
+    	}
+    }
+	public int getIsmovestate() {
+		//返回值为0表示消除状态，1，掉落状态，2，正常状态
+		 int result =2; 
+		for (int f = 0; f < 9; f++) {
+			for (int j = 0; j < 9; j++) {
+				if (gameRange_cplayer.gameRange[f][j]<0) {
+					result = 0;
+					break;
+				}else if(gameRange_cplayer.gameRange[f][j]==0){
+					result=1;
+				break;
+				}
+			}
+			if (result==0||result==1) {
+				//System.out.println(result);
+				break;
+			}
+		}
+	
+		//System.out.println(result);
+		return result;
+	}
+	
+
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	public void paint(Graphics g) {
+		super.paint(g);
+		g.setFont(new Font("微软雅黑", Font.PLAIN, 10));
+		int onex = this.getWidth() / 9;
+		int oney = this.getHeight() / 9;
+		int countre = 0;
+		g.clearRect(0, 0, this.getWidth(), this.getHeight());
+		if (state_cplayer == 1) {
+			//System.out.println("进入非初始化状态");
+	
+			if (getIsmovestate()==2) {
+				for (int f = 0; f < 9; f++) {
+					// System.out.println();
+					for (int j = 0; j < 9; j++) {
+						// System.out.print("    "+gameRange[f][j]);
+						paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0,0,0,0);
+						
+					}
+				}
+			} else if(getIsmovestate()==1) {
+				
+				if (gameRange_cplayer.guiUpdateCount == 1) {
+					
+					int removex1;
+					int removey1;
+					for (int js = 0; js < 9; js++) {
+						int i=getLineOfRow(gameRange_cplayer.gameRange,js,9);
+						if (i>-1) {
+							removex1 = i;
+							removey1 = js;
+							if(rebuildGameRange_cplayer[removex1][removey1]>7){
+								//说明生成了道具
+								gameRange_cplayer.gameRange[i][js] =rebuildGameRange_cplayer[removex1][removey1];
+								System.out.println("有道具生成");
+							//	singleGameGUI_methon sgg=new singleGameGUI_methon();
+								//sgg.print(gameRange.gameRange,9);
+								//.print(rebuildGameRange, 9);
+						
+							}else{
+								//没生成道具
+							for (int gs = i; gs > -1; gs--) {
+								if (gs == 0) {
+									// System.out.print("gs:"+gs+"i:"+i+"js"+removey1+"    ");
+									gameRange_cplayer.gameRange[gs][js] = rebuildGameRange_cplayer[removex1][removey1];
+								} else {
+									gameRange_cplayer.gameRange[gs][js] = gameRange_cplayer.gameRange[gs - 1][js];
+								}
+							}
+							exchangeRebulidGame(rebuildGameRange_cplayer,9,js);
+						//	singleGameGUI_methon sgg=new singleGameGUI_methon();
+						//	sgg.print(gameRange.gameRange,9);
+						//	sgg.print(rebuildGameRange, 9);
+					
+							}
+							
+						}
+					}
+					for (int f = 0; f < 9; f++) {
+						for (int j = 0; j < 9; j++) {
+							paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0,0,0,0);
+							
+						}
+        }
+					countre = 0;
+				} else {
+					if (gameRange_cplayer.guiUpdateCount == 0) {
+						countre = 8;
+						for (int f = 0; f < 9; f++) {
+							// System.out.println("");
+							for (int j = 0; j < 9; j++) {
+								// System.out.print("    "+gameRange[f][j]);
+								paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0,0,0,0);
+								
+							}
+
+						}
+					} else {
+						//System.out.println("半移动："
+					//+ gameRange.guiUpdateCount);
+						
+					 	for (int j = 0; j < 9; j++) {
+					 		int i=getLineOfRow(gameRange_cplayer.gameRange,j,9);
+							if (i>-1) {
+								if(rebuildGameRange_cplayer[i][j]>7){
+									for(int k=0;k<9;k++){
+										if(k==i){
+											paintGame(g,rebuildGameRange_cplayer[i][j],j * onex, i * oney, (int) (onex/8*(9.0 - gameRange_cplayer.guiUpdateCount)), (int) (oney/8*(9.0 - gameRange_cplayer.guiUpdateCount)),0, 0,0,0);
+											
+										}else{
+											//System.out.println("举行检察"+k);
+											paintGame(g,gameRange_cplayer.gameRange[k][j],j * onex, k * oney, onex, oney,0, 0,0,0);
+											
+										}
+									}
+								}else{
+								for (int n = i; n > -1; n--) {
+                                            if(n==0){
+                                            	paintGame(g,rebuildGameRange_cplayer[i][j],j * onex,(int) (n* oney + (1.0 - gameRange_cplayer.guiUpdateCount) * (oney/ 8)), onex, oney,0, 0,0,0);
+                                            	
+                                            	
+                                            }else{
+                                            	paintGame(g,gameRange_cplayer.gameRange[n-1][j],j * onex,(int) (n* oney + (1.0 - gameRange_cplayer.guiUpdateCount) * (oney/ 8)), onex, oney,0, 0,0,0);
+                                            	
+								}
+								}
+								//
+								for (int n = i + 1; n < 9; n++) {
+									paintGame(g,gameRange_cplayer.gameRange[n][j],j * onex, n * oney, onex, oney,0, 0,0,0);
+						
+								}
+								}
+								//
+							} else {
+								for (int n = 0; n < 9; n++) {
+									paintGame(g,gameRange_cplayer.gameRange[n][j],j * onex, n * oney, onex, oney,0, 0,0,0);
+									
+								}
+							}
+
+						}
+						countre = gameRange_cplayer.guiUpdateCount - 1;
+						// this.repaint();
+					}
+				}
+				gameRange_cplayer.guiUpdateCount = countre;
+			}else{
+				//动态消除图代码
+				//System.out.println("到哪个台消除");
+				//System.out.println(""+gameRange.guiUpdateCount);
+				if(gameRange_cplayer.guiUpdateCount==0){
+					for (int f = 0; f < 9; f++) {
+						for (int j = 0; j < 9; j++) {
+							paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,j * onex, f * oney,onex,oney);
+							
+							}
+					}
+					gameRange_cplayer.guiUpdateCount=7;
+					
+				}else if(gameRange_cplayer.guiUpdateCount==1){
+					
+					for (int f = 0; f < 9; f++) {
+						for (int j = 0; j < 9; j++) {
+							if(gameRange_cplayer.gameRange[f][j]<0){
+							//	paintDelete(g,gameRange.gameRange[f][j],j * onex, f * oney, onex,oney);
+							}else{
+								paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0, 0,0,0);
+							}
+							
+							}
+					}
+					for (int f = 0; f < 9; f++) {
+						// System.out.println("");
+						for (int j = 0; j < 9; j++) {
+							if(gameRange_cplayer.gameRange[f][j]<0)
+							gameRange_cplayer.gameRange[f][j]=0;
+						}
+					}
+					gameRange_cplayer.guiUpdateCount=0;
+					}else{
+						//动态消除的（432）
+						//System.out.println("动态消除");
+						int photosize=gameRange_cplayer.guiUpdateCount;
+					for (int f = 0; f < 9; f++) {
+						// System.out.println("");
+						for (int j = 0; j < 9; j++) {
+							// System.out.print("    "+gameRange[f][j]);
+							paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,j * onex+(8-photosize)*onex/16, f * oney+(8-photosize)*oney/16, onex/8*photosize, oney/8*photosize);
+							
+						}
+					}
+					gameRange_cplayer.guiUpdateCount--;
+				}
+				
+				
+				
+			}
+		} else if(state_cplayer==0){
+			//System.out.println("初始化");
+			// gameRange.gameRange=rebuildGameRange;
+			if(gameRange_cplayer.guiUpdateCount==0){
+				gameRange_cplayer.guiUpdateCount=7;
+			}else if(gameRange_cplayer.guiUpdateCount==1){
+				for (int f = 0; f < 9; f++) {
+					// System.out.println("");
+					for (int j = 0; j < 9; j++) {
+						// System.out.print("    "+gameRange[f][j]);
+						paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex+gameRange_cplayer.guiUpdateCount*onex/16, f * oney+gameRange_cplayer.guiUpdateCount*oney/16, (8-gameRange_cplayer.guiUpdateCount)*onex/8, (8-gameRange_cplayer.guiUpdateCount)*oney/8,0, 0,0, 0);
+						
+					}
+				}
+				gameRange_cplayer.guiUpdateCount=0;
+				//System.out.println("路径1");
+				state_cplayer = 1;//费初始状态
+			}else{
+				for (int f = 0; f < 9; f++) {
+					// System.out.println("");
+					for (int j = 0; j < 9; j++) {
+						// System.out.print("    "+gameRange[f][j]);
+						paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex+gameRange_cplayer.guiUpdateCount*onex/16, f * oney+gameRange_cplayer.guiUpdateCount*oney/16, (8-gameRange_cplayer.guiUpdateCount)*onex/8, (8-gameRange_cplayer.guiUpdateCount)*oney/8,0, 0,0, 0);
+						
+					}
+				}
+				//System.out.println("路径2");
+				gameRange_cplayer.guiUpdateCount--;
+			}
+			
+			
+			
+		}else if(state_cplayer==2)
+		{//无效移动状态
+			int x12=exchangex1-exchangex2;
+			int y12=exchangey1-exchangey2;
+		if(gameRange_cplayer.guiUpdateCount==0){
+			for (int f = 0; f < 9; f++) {
+				// System.out.println();
+				for (int j = 0; j < 9; j++) {
+					// System.out.print("    "+gameRange[f][j]);
+					paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0,0,0,0);
+					
+				}
+			}
+			
+			gameRange_cplayer.guiUpdateCount=15;
+		}else if(gameRange_cplayer.guiUpdateCount==1){
+			//无效移动结束
+			for (int f = 0; f < 9; f++) {
+				for (int j = 0; j < 9; j++) {
+					if(f==exchangex1&&exchangey1==j){
+					paintGame(g,color1,j * onex-y12*onex/8, f * oney-x12*oney/8, onex, oney,0, 0,0,0);
+					}else if(f==exchangex2&&exchangey2==j){
+						paintGame(g,color2,j * onex+y12*onex/8, f * oney+x12*oney/8, onex, oney,0, 0,0,0);
+					}else{
+						paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0, 0,0,0);
+					}
+					}
+			}
+			gameRange_cplayer.guiUpdateCount=0;
+			state_cplayer=1;
+		}else{
+			for (int f = 0; f < 9; f++) {
+				for (int j = 0; j < 9; j++) {
+					if(f==exchangex1&&exchangey1==j){
+					paintGame(g,color1,j * onex-(8-Math.abs(8-gameRange_cplayer.guiUpdateCount))*y12*onex/8, f * oney-(8-Math.abs(8-gameRange_cplayer.guiUpdateCount))*x12*oney/8, onex, oney,0, 0,0,0);
+					}else if(f==exchangex2&&exchangey2==j){
+						paintGame(g,color2,j * onex+(8-Math.abs(8-gameRange_cplayer.guiUpdateCount))*y12*onex/8, f * oney+(8-Math.abs(8-gameRange_cplayer.guiUpdateCount))*x12*oney/8, onex, oney,0, 0,0,0);
+					}else{
+						paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0, 0,0,0);
+					}
+					}
+			}
+			gameRange_cplayer.guiUpdateCount--;
+		}
+			
+		}else if(state_cplayer==3){
+			//有效移动
+			int x12=exchangex1-exchangex2;
+			int y12=exchangey1-exchangey2;
+		if(gameRange_cplayer.guiUpdateCount==0){
+			for (int f = 0; f < 9; f++) {
+				// System.out.println();
+				for (int j = 0; j < 9; j++) {
+					// System.out.print("    "+gameRange[f][j]);
+					paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0,0,0,0);
+					
+				}
+			}
+			gameRange_cplayer.guiUpdateCount=7;
+		}else if(gameRange_cplayer.guiUpdateCount==1){
+		
+			for (int f = 0; f < 9; f++) {
+				for (int j = 0; j < 9; j++) {
+					if(f==exchangex1&&exchangey1==j){
+					paintGame(g,color1,j * onex-(8-gameRange_cplayer.guiUpdateCount)*y12*onex/8, f * oney-(8-gameRange_cplayer.guiUpdateCount)*x12*oney/8, onex, oney,0, 0,0,0);
+					}else if(f==exchangex2&&exchangey2==j){
+						paintGame(g,color2,j * onex+(8-gameRange_cplayer.guiUpdateCount)*y12*onex/8, f * oney+(8-gameRange_cplayer.guiUpdateCount)*x12*oney/8, onex, oney,0, 0,0,0);
+					}else{
+						paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0, 0,0,0);
+					}
+					}
+			}
+			//Game_info gameinfo=blserver.single_game(gameRange.gameRange);
+			//gameRange.gameRange=gameinfo.getAfterdeleteRange();
+			//rebuildGameRange=gameinfo.getNewAddRange();
+			//gameRange.guiUpdateCount=0;
+		
+			state_cplayer=1;
+		}else{
+			for (int f = 0; f < 9; f++) {
+				for (int j = 0; j < 9; j++) {
+					if(f==exchangex1&&exchangey1==j){
+					paintGame(g,color1,j * onex-(8-gameRange_cplayer.guiUpdateCount)*y12*onex/8, f * oney-(8-gameRange_cplayer.guiUpdateCount)*x12*oney/8, onex, oney,0, 0,0,0);
+					}else if(f==exchangex2&&exchangey2==j){
+						paintGame(g,color2,j * onex+(8-gameRange_cplayer.guiUpdateCount)*y12*onex/8, f * oney+(8-gameRange_cplayer.guiUpdateCount)*x12*oney/8, onex, oney,0, 0,0,0);
+					}else{
+						paintGame(g,gameRange_cplayer.gameRange[f][j],j * onex, f * oney, onex, oney,0, 0,0,0);
+					}
+					}
+			}
+			gameRange_cplayer.guiUpdateCount--;
+		}
+		}
+
+		
+		if(gameRange.guiUpdateCount!=0){
+			this.setEnabled(false);
+		}else{
+			this.setEnabled(true);
+		}
+		
+
+	}
+	public void paintGame(Graphics g,int picture,int x1,int y1,int width1,int height1,int x2,int y2,int width2,int height2){
+		int rex = y1 / (this.getHeight() / 9);
+		int rey = x1 / (this.getWidth() / 9);
+		if(dropdirection_cplayer==2){
+			int cv=x1;
+			x1=y1;
+			y1=cv;
+			cv=x2;
+			x2=y2;
+			y2=cv;
+			
+		}
+		if(!(rex==mousex_cplayer&&rey==mousey_cplayer)){
+		switch(picture){
+		case 1:java.net.URL imgurl1 = pkGameGUI.class
+				.getResource("/bin/43.jpg");
+		Image image1 = new ImageIcon(imgurl1).getImage();
+		g.drawImage(image1, x1, y1, width1-2, height1-2, this);
+		break;
+		case 2:java.net.URL imgurl2 = pkGameGUI.class
+				.getResource("/bin/44.jpg");
+		Image image2 = new ImageIcon(imgurl2).getImage();
+		g.drawImage(image2, x1, y1, width1-2, height1-2, this);
+		break;
+		case 3:java.net.URL imgurl3 = pkGameGUI.class
+				.getResource("/bin/46.jpg");
+		Image image3 = new ImageIcon(imgurl3).getImage();
+		g.drawImage(image3, x1, y1, width1-2, height1-2, this);
+		break;
+		case 4:java.net.URL imgurl4 = pkGameGUI.class
+				.getResource("/bin/49.jpg");
+		Image image4 = new ImageIcon(imgurl4).getImage();
+		g.drawImage(image4, x1, y1, width1-2, height1-2, this);
+		break;
+		case 5:java.net.URL imgurl5 = pkGameGUI.class
+				.getResource("/bin/59.jpg");
+		Image image5 = new ImageIcon(imgurl5).getImage();
+		g.drawImage(image5, x1, y1, width1-2, height1-2, this);
+		break;
+		case 6:java.net.URL imgurl6 = pkGameGUI.class
+				.getResource("/bin/61.jpg");
+		Image image6 = new ImageIcon(imgurl6).getImage();
+		g.drawImage(image6, x1, y1, width1-2, height1-2, this);
+		break;
+		case 7:java.net.URL imgurl7 = pkGameGUI.class
+				.getResource("/bin/63.jpg");
+		Image image7 = new ImageIcon(imgurl7).getImage();
+		g.drawImage(image7, x1, y1, width1-2, height1-2, this);
+		break;
+		case 11:java.net.URL imgurl11 = pkGameGUI.class
+				.getResource("/bin/434.jpg");
+		Image image11 = new ImageIcon(imgurl11).getImage();
+		g.drawImage(image11, x1, y1, width1-2, height1-2, this);
+		break;
+		case 12:java.net.URL imgurl12 = pkGameGUI.class
+				.getResource("/bin/444.jpg");
+		Image image12 = new ImageIcon(imgurl12).getImage();
+		g.drawImage(image12, x1, y1, width1-2, height1-2, this);
+		break;
+		case 13:java.net.URL imgurl13 = pkGameGUI.class
+				.getResource("/bin/464.jpg");
+		Image image13 = new ImageIcon(imgurl13).getImage();
+		g.drawImage(image13, x1, y1, width1-2, height1-2, this);
+		break;
+		case 14:java.net.URL imgurl14 = pkGameGUI.class
+				.getResource("/bin/494.jpg");
+		Image image14 = new ImageIcon(imgurl14).getImage();
+		g.drawImage(image14, x1, y1, width1-2, height1-2, this);
+		break;
+		case 15:java.net.URL imgurl15 = pkGameGUI.class
+				.getResource("/bin/594.jpg");
+		Image image15 = new ImageIcon(imgurl15).getImage();
+		g.drawImage(image15, x1, y1, width1-2, height1-2, this);
+		break;
+		case 16:java.net.URL imgurl16 = pkGameGUI.class
+				.getResource("/bin/614.jpg");
+		Image image16 = new ImageIcon(imgurl16).getImage();
+		g.drawImage(image16, x1, y1, width1-2, height1-2, this);
+		break;
+		case 17:java.net.URL imgurl17 = pkGameGUI.class
+				.getResource("/bin/634.jpg");
+		Image image17 = new ImageIcon(imgurl17).getImage();
+		g.drawImage(image17, x1, y1, width1-2, height1-2, this);
+		break;
+		case 20:java.net.URL imgurl20 = pkGameGUI.class
+				.getResource("/bin/100.jpg");
+		Image image20 = new ImageIcon(imgurl20).getImage();
+		g.drawImage(image20, x1, y1, width1-2, height1-2, this);
+		break;
+		case -1:java.net.URL imgurl1f = pkGameGUI.class
+				.getResource("/bin/43.jpg");
+		Image image1f = new ImageIcon(imgurl1f).getImage();
+		g.drawImage(image1f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -2:java.net.URL imgurl2f = pkGameGUI.class
+				.getResource("/bin/44.jpg");
+		Image image2f = new ImageIcon(imgurl2f).getImage();
+		g.drawImage(image2f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -3:java.net.URL imgurl3f = pkGameGUI.class
+				.getResource("/bin/46.jpg");
+		Image image3f = new ImageIcon(imgurl3f).getImage();
+		g.drawImage(image3f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -4:java.net.URL imgurl4f = pkGameGUI.class
+				.getResource("/bin/49.jpg");
+		Image image4f = new ImageIcon(imgurl4f).getImage();
+		g.drawImage(image4f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -5:java.net.URL imgurl5f = pkGameGUI.class
+				.getResource("/bin/59.jpg");
+		Image image5f = new ImageIcon(imgurl5f).getImage();
+		g.drawImage(image5f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -6:java.net.URL imgurl6f = pkGameGUI.class
+				.getResource("/bin/61.jpg");
+		Image image6f = new ImageIcon(imgurl6f).getImage();
+		g.drawImage(image6f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -7:java.net.URL imgurl7f = pkGameGUI.class
+				.getResource("/bin/63.jpg");
+		Image image7f = new ImageIcon(imgurl7f).getImage();
+		g.drawImage(image7f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -11:java.net.URL imgurl11f = pkGameGUI.class
+				.getResource("/bin/434.jpg");
+		Image image11f = new ImageIcon(imgurl11f).getImage();
+		g.drawImage(image11f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -12:java.net.URL imgurl12f = pkGameGUI.class
+				.getResource("/bin/444.jpg");
+		Image image12f = new ImageIcon(imgurl12f).getImage();
+		g.drawImage(image12f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -13:java.net.URL imgurl13f = pkGameGUI.class
+				.getResource("/bin/464.jpg");
+		Image image13f = new ImageIcon(imgurl13f).getImage();
+		g.drawImage(image13f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -14:java.net.URL imgurl14f = pkGameGUI.class
+				.getResource("/bin/494.jpg");
+		Image image14f = new ImageIcon(imgurl14f).getImage();
+		g.drawImage(image14f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -15:java.net.URL imgurl15f = pkGameGUI.class
+				.getResource("/bin/594.jpg");
+		Image image15f = new ImageIcon(imgurl15f).getImage();
+		g.drawImage(image15f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -16:java.net.URL imgurl16f = pkGameGUI.class
+				.getResource("/bin/614.jpg");
+		Image image16f = new ImageIcon(imgurl16f).getImage();
+		g.drawImage(image16f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -17:java.net.URL imgurl17f = pkGameGUI.class
+				.getResource("/bin/634.jpg");
+		Image image17f = new ImageIcon(imgurl17f).getImage();
+		g.drawImage(image17f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -20:java.net.URL imgurl20f = pkGameGUI.class
+				.getResource("/bin/100.jpg");
+		Image image20f = new ImageIcon(imgurl20f).getImage();
+		g.drawImage(image20f, x2, y2, width2-2, height2-2, this);
+		break;
+	}
+	
+	}else{
+		switch(picture){
+		case 1:java.net.URL imgurl1 = pkGameGUI.class
+				.getResource("/bin/431.jpg");
+		Image image1 = new ImageIcon(imgurl1).getImage();
+		g.drawImage(image1, x1, y1, width1-2, height1-2, this);
+		break;
+		case 2:java.net.URL imgurl2 = pkGameGUI.class
+				.getResource("/bin/441.jpg");
+		Image image2 = new ImageIcon(imgurl2).getImage();
+		g.drawImage(image2, x1, y1, width1-2, height1-2, this);
+		break;
+		case 3:java.net.URL imgurl3 = pkGameGUI.class
+				.getResource("/bin/461.jpg");
+		Image image3 = new ImageIcon(imgurl3).getImage();
+		g.drawImage(image3, x1, y1, width1-2, height1-2, this);
+		break;
+		case 4:java.net.URL imgurl4 = pkGameGUI.class
+				.getResource("/bin/491.jpg");
+		Image image4 = new ImageIcon(imgurl4).getImage();
+		g.drawImage(image4, x1, y1, width1-2, height1-2, this);
+		break;
+		case 5:java.net.URL imgurl5 = pkGameGUI.class
+				.getResource("/bin/591.jpg");
+		Image image5 = new ImageIcon(imgurl5).getImage();
+		g.drawImage(image5, x1, y1, width1-2, height1-2, this);
+		break;
+		case 6:java.net.URL imgurl6 = pkGameGUI.class
+				.getResource("/bin/611.jpg");
+		Image image6 = new ImageIcon(imgurl6).getImage();
+		g.drawImage(image6, x1, y1, width1-2, height1-2, this);
+		break;
+		case 7:java.net.URL imgurl7 = pkGameGUI.class
+				.getResource("/bin/631.jpg");
+		Image image7 = new ImageIcon(imgurl7).getImage();
+		g.drawImage(image7, x1, y1, width1-2, height1-2, this);
+		break;
+		case 11:java.net.URL imgurl11 = pkGameGUI.class
+				.getResource("/bin/433.jpg");
+		Image image11 = new ImageIcon(imgurl11).getImage();
+		g.drawImage(image11, x1, y1, width1-2, height1-2, this);
+		break;
+		case 12:java.net.URL imgurl12 = pkGameGUI.class
+				.getResource("/bin/443.jpg");
+		Image image12 = new ImageIcon(imgurl12).getImage();
+		g.drawImage(image12, x1, y1, width1-2, height1-2, this);
+		break;
+		case 13:java.net.URL imgurl13 = pkGameGUI.class
+				.getResource("/bin/463.jpg");
+		Image image13 = new ImageIcon(imgurl13).getImage();
+		g.drawImage(image13, x1, y1, width1-2, height1-2, this);
+		break;
+		case 14:java.net.URL imgurl14 = pkGameGUI.class
+				.getResource("/bin/493.jpg");
+		Image image14 = new ImageIcon(imgurl14).getImage();
+		g.drawImage(image14, x1, y1, width1-2, height1-2, this);
+		break;
+		case 15:java.net.URL imgurl15 = pkGameGUI.class
+				.getResource("/bin/593.jpg");
+		Image image15 = new ImageIcon(imgurl15).getImage();
+		g.drawImage(image15, x1, y1, width1-2, height1-2, this);
+		break;
+		case 16:java.net.URL imgurl16 = pkGameGUI.class
+				.getResource("/bin/613.jpg");
+		Image image16 = new ImageIcon(imgurl16).getImage();
+		g.drawImage(image16, x1, y1, width1-2, height1-2, this);
+		break;
+		case 17:java.net.URL imgurl17 = pkGameGUI.class
+				.getResource("/bin/633.jpg");
+		Image image17 = new ImageIcon(imgurl17).getImage();
+		g.drawImage(image17, x1, y1, width1-2, height1-2, this);
+		break;
+		case 20:java.net.URL imgurl20 = pkGameGUI.class
+				.getResource("/bin/1003.jpg");
+		Image image20 = new ImageIcon(imgurl20).getImage();
+		g.drawImage(image20, x1, y1, width1-2, height1-2, this);
+		break;
+		case -1:java.net.URL imgurl1f = pkGameGUI.class
+				.getResource("/bin/43.jpg");
+		Image image1f = new ImageIcon(imgurl1f).getImage();
+		g.drawImage(image1f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -2:java.net.URL imgurl2f = pkGameGUI.class
+				.getResource("/bin/44.jpg");
+		Image image2f = new ImageIcon(imgurl2f).getImage();
+		g.drawImage(image2f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -3:java.net.URL imgurl3f = pkGameGUI.class
+				.getResource("/bin/46.jpg");
+		Image image3f = new ImageIcon(imgurl3f).getImage();
+		g.drawImage(image3f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -4:java.net.URL imgurl4f = pkGameGUI.class
+				.getResource("/bin/49.jpg");
+		Image image4f = new ImageIcon(imgurl4f).getImage();
+		g.drawImage(image4f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -5:java.net.URL imgurl5f = pkGameGUI.class
+				.getResource("/bin/59.jpg");
+		Image image5f = new ImageIcon(imgurl5f).getImage();
+		g.drawImage(image5f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -6:java.net.URL imgurl6f = pkGameGUI.class
+				.getResource("/bin/61.jpg");
+		Image image6f = new ImageIcon(imgurl6f).getImage();
+		g.drawImage(image6f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -7:java.net.URL imgurl7f = pkGameGUI.class
+				.getResource("/bin/63.jpg");
+		Image image7f = new ImageIcon(imgurl7f).getImage();
+		g.drawImage(image7f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -11:java.net.URL imgurl11f = pkGameGUI.class
+				.getResource("/bin/43.jpg");
+		Image image11f = new ImageIcon(imgurl11f).getImage();
+		g.drawImage(image11f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -12:java.net.URL imgurl12f = pkGameGUI.class
+				.getResource("/bin/44.jpg");
+		Image image12f = new ImageIcon(imgurl12f).getImage();
+		g.drawImage(image12f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -13:java.net.URL imgurl13f = pkGameGUI.class
+				.getResource("/bin/46.jpg");
+		Image image13f = new ImageIcon(imgurl13f).getImage();
+		g.drawImage(image13f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -14:java.net.URL imgurl14f = pkGameGUI.class
+				.getResource("/bin/49.jpg");
+		Image image14f = new ImageIcon(imgurl14f).getImage();
+		g.drawImage(image14f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -15:java.net.URL imgurl15f = pkGameGUI.class
+				.getResource("/bin/59.jpg");
+		Image image15f = new ImageIcon(imgurl15f).getImage();
+		g.drawImage(image15f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -16:java.net.URL imgurl16f = pkGameGUI.class
+				.getResource("/bin/61.jpg");
+		Image image16f = new ImageIcon(imgurl16f).getImage();
+		g.drawImage(image16f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -17:java.net.URL imgurl17f = pkGameGUI.class
+				.getResource("/bin/63.jpg");
+		Image image17f = new ImageIcon(imgurl17f).getImage();
+		g.drawImage(image17f, x2, y2, width2-2, height2-2, this);
+		break;
+		case -20:java.net.URL imgurl20f = pkGameGUI.class
+				.getResource("/bin/100.jpg");
+		Image image20f = new ImageIcon(imgurl20f).getImage();
+		g.drawImage(image20f, x2, y2, width2-2, height2-2, this);
+		break;
+	}
+	
+	}
+	}
+	
+}}
+
+

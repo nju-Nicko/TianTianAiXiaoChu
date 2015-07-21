@@ -1,0 +1,130 @@
+package presentation.mainui;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import main.Startup;
+import message.RequestFriendMessage;
+
+import presentation.loginui.MyTextField;
+
+public class AddFriendPanel extends JPanel{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public AddFriendPanel(){
+		setOpaque(false);
+		setSize(200,400);
+		setLayout(null);
+	    
+		JLabel l=new MyLabel("∫√”—ID:");
+		l.setFont(new Font("Œ¢»Ì—≈∫⁄",Font.PLAIN,12));
+		l.setBounds(10,38,50,20);		
+		add(l);
+		
+		final JTextField text=new MyTextField();
+		text.setBounds(60,35,132,28);
+		add(text);
+		
+		final JLabel add=new MyLabel("ÃÌº”");
+		add.setForeground(Color.white);
+		add.setFont(new Font("Œ¢»Ì—≈∫⁄",Font.PLAIN,12));
+		add.setBounds(80,66,50,20);
+		add.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				Startup.net.sendMessage(new RequestFriendMessage(Startup.window.uif.name,text.getText()));
+				boolean ok=((RequestFriendBackMessage)Startup.net.getMessage(-30001)).ok;
+				if(ok);
+				JOptionPane.showMessageDialog(null,"«Î«Û“—∑¢ÀÕ");
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				setCursor(new Cursor(Cursor.HAND_CURSOR));
+				add.setForeground(new Color(36,85,141));
+				Startup.window.mainframe.panel.repaint();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				add.setForeground(Color.white);
+				Startup.window.mainframe.panel.repaint();
+			}
+			
+		});
+		add(add);
+		
+		JLabel mini=new JLabel("-");
+		mini.setBounds(170,0,22,22);
+		mini.setForeground(new Color(189,180,123));
+		mini.setFont(new Font("Œ¢»Ì—≈∫⁄",Font.PLAIN,18));
+		mini.addMouseListener(new MouseListener(){
+			public void mouseExited(MouseEvent e){
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				}
+	           
+				public void mouseReleased(MouseEvent e){
+				 Startup.window.mainframe.panel.remove(Startup.window.mainframe.afp);
+				 Startup.window.mainframe.afp=null;
+				 Startup.window.mainframe.afb.bg=0;
+				 Startup.window.mainframe.panel.repaint();
+				}
+				
+				public void mouseClicked(MouseEvent e){
+					
+				}
+				
+				public void mouseEntered(MouseEvent e){
+					 setCursor(new Cursor(Cursor.HAND_CURSOR));
+				}
+				
+				public void mousePressed(MouseEvent e){
+				
+				}
+		});
+		add(mini);
+	}
+	
+	public void paintComponent(Graphics g){
+		Graphics2D g2=(Graphics2D)g;
+		g2.setColor(new Color(0,0,0));
+		g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 10, 10);
+		
+	    g2.setStroke(new BasicStroke(1));                  //…Ë÷√± ¥•øÌ∂»
+		g2.setColor(new Color(84,116,157));
+		g2.drawRoundRect(4, 4, getWidth()-9, getHeight()-9, 10, 10);
+	}
+
+}

@@ -1,0 +1,26 @@
+package message;
+
+import java.util.ArrayList;
+
+public class UserInfoMessage extends Message {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public String name;
+	public String photo;
+	public int maxScore;
+	public ArrayList<String> daily_game_numbers;
+	public ArrayList<String> daily_average_scores;
+	public ArrayList<String> per_game_scores;
+	public int max_combo_number;
+	public int game_number;
+	public int average_score;
+
+	public UserInfoMessage() {
+
+	}
+
+}

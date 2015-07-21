@@ -1,0 +1,16 @@
+package presentation.mainui;
+
+import javax.swing.JFrame;
+
+public class SettingsFrame extends JFrame {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public SettingsFrame(){
+		
+	}
+
+}

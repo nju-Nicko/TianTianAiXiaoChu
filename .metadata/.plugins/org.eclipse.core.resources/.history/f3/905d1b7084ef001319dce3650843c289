@@ -1,0 +1,741 @@
+package net;
+
+import game.GameState;
+import game.Game_info;
+import gamemessage.ChangePositionMessage;
+import gamemessage.CorpChangePositionMessage;
+import gamemessage.CorpDirectRemoveMessage;
+import gamemessage.CorpGameStartMessage;
+import gamemessage.CorpGetStateMessage;
+import gamemessage.CorpTestMessage;
+import gamemessage.CorpUseToolMessage;
+import gamemessage.FinishDropMessage;
+import gamemessage.GameStateMessage;
+import gamemessage.Game_infoMessage;
+import gamemessage.PkChangePositionMessage;
+import gamemessage.PkDirectRemoveMessage;
+import gamemessage.PkGameStartMessage;
+import gamemessage.PkGameStateMessage;
+import gamemessage.PkGame_infoMessage;
+import gamemessage.PkGetStateMessage;
+import gamemessage.PkSelectPositionMessage;
+import gamemessage.PkUseToolMessage;
+import gamemessage.SelectPositionMessage;
+import gamemessage.SingleChangePositionMessage;
+import gamemessage.SingleDirectremoveMessage;
+import gamemessage.SingleGameStartMessage;
+import gamemessage.SingleGetStateMessage;
+import gamemessage.SingleUseToolMessage;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.ArrayList;
+
+import message.AddFriendMessage;
+import message.ClearRequestMessage;
+import message.CooperateRequestMessage;
+import message.LoginBackMessage;
+import message.LoginMessage;
+import message.Message;
+import message.QueryCooperateRequestBackMessage;
+import message.QueryCooperateRequestMessage;
+import message.QueryFriendRequestBackMessage;
+import message.QueryFriendRequestMessage;
+import message.RegisterBackMessage;
+import message.RegisterMessage;
+import message.RemoveOneFriendRequestMessage;
+import message.RequestFriendMessage;
+import message.ShowOfflineFriendBackMessage;
+import message.ShowOfflineFriendMessage;
+import message.ShowOnlineFriendBackMessage;
+import message.ShowOnlineFriendMessage;
+import po.UserPO;
+import test.TestMessage1;
+import test.TestMessage2;
+import businesslogic.remove.MakeNewPane;
+import businesslogic.remove.RemoveAndDrop;
+import data.dataoperation.DataOperation;
+import data.friendsmanagement.FriendsManagementData;
+import dataservice.DataService;
+
+public class Net {
+	ServerSocket serverSock;
+	public static Pair ppp = new Pair();
+	public static ArrayList<User> users = new ArrayList<User>();
+	public static ArrayList<Pair> pairs = new ArrayList<Pair>();
+	public static ArrayList<PkPair> pk_pairs = new ArrayList<PkPair>();
+	public static ArrayList<Single> single = new ArrayList<Single>();
+
+	public Net() {
+		try {
+			serverSock = new ServerSocket(5000);
+			while (true) {
+				Socket sock = serverSock.accept();
+				User user = new User("lll", sock); // " "是不可能的id $$$$$$$$
+				users.add(user);
+
+				ppp.player.add(user);
+				pairs.add(ppp);
+				  
+				Single s = new Single();
+				s.player = user;
+				single.add(s);
+				Thread t = new Thread(new ClientHandler(user));
+				t.start();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public class ClientHandler implements Runnable {
+
+		User user;
+		ObjectInputStream ois;
+
+		public ClientHandler(User user) {
+			try {
+				this.user = user;
+				ois = new ObjectInputStream(user.sock.getInputStream());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void run() {
+			Message message;
+			try {
+				while ((message = (Message) (ois.readObject())) != null) { // 流为空时该线程会等待
+					switch (message.type) {
+					case -1000:
+						sendMessageToClient(user.oos,new TestMessage1());
+						break;
+					case -2000:
+						sendMessageToClient(user.oos,new TestMessage2());
+						break;
+					case 0:
+		/*				RegisterMessage rm = (RegisterMessage) message;
+						UserPO userpo = new UserPO();
+						userpo.setName(rm.register_name);
+						userpo.setPassword(rm.register_password);
+						
+						DataService ds = new DataOperation();
+						int id = ds.addUser(userpo);
+
+						RegisterBackMessage rbm = new RegisterBackMessage(id+"");  */
+					//	sendMessageToClient(user.oos, rbm);
+						sendMessageToClient(user.oos,new RegisterBackMessage("啦啦啦啦啦啦啦"));
+						break;
+						
+					case 2:
+						LoginMessage lm = (LoginMessage) message;
+						DataService ds1 = new DataOperation();
+						UserPO usp = ds1.queryUserByID(lm.login_ID);
+
+						if (usp != null) {
+							if (usp.getPassword().equals(lm.login_password)) {
+								System.out.println(lm.login_ID);
+								user.id = lm.login_ID;
+								sendMessageToClient(user.oos,
+										new LoginBackMessage("登陆成功"));
+							} else {
+								sendMessageToClient(user.oos,
+										new LoginBackMessage("登录失败"));
+							}
+						} else {
+							sendMessageToClient(user.oos, new LoginBackMessage(
+									"该用户不存在"));
+						}
+						
+						break;
+					case 6:
+						AddFriendMessage afm = (AddFriendMessage) message;
+						FriendsManagementData fmd = new FriendsManagementData();
+						fmd.addFriend(afm.ID1, afm.ID2);
+						break;
+					case -100:
+						RequestFriendMessage rfm = (RequestFriendMessage) message;
+						FriendsManagementData fmd2 = new FriendsManagementData();
+						fmd2.requestFriend(rfm.ID1, rfm.ID2);
+						break;
+					case -102:
+						QueryFriendRequestMessage qfrm = (QueryFriendRequestMessage) message;
+						FriendsManagementData fmd3 = new FriendsManagementData();
+						String str = fmd3.queryFriendRequest(qfrm.ID);
+						String[] split = str.split(" ");
+						ArrayList<String> arr = new ArrayList<String>();
+						for (int i = 0; i <= split.length - 1; i++)
+							arr.add(split[i]);
+						QueryFriendRequestBackMessage qfrbm = new QueryFriendRequestBackMessage(
+								arr);
+						sendMessageToClient(user.oos, qfrbm);
+						break;
+					case -106:
+						ClearRequestMessage crm = (ClearRequestMessage) message;
+						FriendsManagementData fmd4 = new FriendsManagementData();
+						fmd4.clearRequest(crm.ID);
+						break;
+					case -108:
+						RemoveOneFriendRequestMessage rofrm = (RemoveOneFriendRequestMessage) message;
+						FriendsManagementData fmd5 = new FriendsManagementData();
+						fmd5.removeOneFriendRequest(rofrm.ID1, rofrm.ID2);
+                        break;
+					case -110:
+						ShowOnlineFriendMessage sofm=(ShowOnlineFriendMessage)message;
+						FriendsManagementData fmd6 = new FriendsManagementData();
+						String[] split2=fmd6.showOnlineFriend(sofm.ID).split(" ");
+						ArrayList<String> online_friend=new ArrayList<String>();
+						for(int i=0;i<=split2.length-1;i++){
+							online_friend.add(split2[i]);
+						}
+						ShowOnlineFriendBackMessage sofbm=new ShowOnlineFriendBackMessage(online_friend);
+						sendMessageToClient(user.oos, sofbm);
+						break;
+					case -112:
+						ShowOfflineFriendMessage sofffm=(ShowOfflineFriendMessage)message;
+						FriendsManagementData fmd7= new FriendsManagementData();
+						String[] split3=fmd7.showOfflineFriend(sofffm.ID).split(" ");
+						ArrayList<String> offline_friend=new ArrayList<String>();
+						for(int i=0;i<=split3.length-1;i++){
+							offline_friend.add(split3[i]);
+						}
+						ShowOfflineFriendBackMessage sofffbm=new ShowOfflineFriendBackMessage(offline_friend);
+						sendMessageToClient(user.oos,sofffbm);
+						break;
+					case -200:
+						CooperateRequestMessage corm=(CooperateRequestMessage)message;
+						FriendsManagementData fmd8= new FriendsManagementData();
+						fmd8.cooperateRequest(corm.user, corm.friend);
+						break;
+					case -202:
+						QueryCooperateRequestMessage qcrm=(QueryCooperateRequestMessage)message;
+						FriendsManagementData fmd9= new FriendsManagementData();
+						String[] split4=fmd9.queryCooperateRequest(qcrm.ID).split(" ");
+						ArrayList<String> list=new ArrayList<String>();
+						for(int i=0;i<=split4.length-1;i++){
+							list.add(split4[i]);
+						}
+						QueryCooperateRequestBackMessage qcrbm=new QueryCooperateRequestBackMessage(list);
+						sendMessageToClient(user.oos,qcrbm);
+						break;
+					case 112:
+		            	   CorpGameStartMessage mi = (CorpGameStartMessage) message;
+		            	   
+		            	   GameState gamestate = new GameState(mi.UseTool_C);
+		            	   gamestate.setUseTool_D(mi.UseTool_D);
+		            	   gamestate.setUseTool_E(mi.UseTool_E);
+		            	   
+		            	   gamestate.setCurrentPane(MakeNewPane.GetInitialPane());
+		            	   gamestate.setTool_E(MakeNewPane.getTool_e());
+		            	   gamestate.setNeedUseTool_E(false);
+		            	   
+		            	   GameStateMessage mess1 = new GameStateMessage();
+		            	   mess1.CurrentGameState = gamestate;
+		            	   
+		            	   Pair p1 = FindCorpPair(mi.UseID);
+		            	   p1.gameinfo = mess1;
+		            	   
+		            	   int[][] res = gamestate.getCurrentPane();
+		            	   System.out.println("可以发消息，游戏界面为：");
+		            	   
+		            	   for(int i = 0; i < 9; i++) {
+		            		   for(int k = 0; k < 9; k++) {
+		            			   System.out.print(res[i][k] + "  ");
+		            		   }
+		            		   System.out.println();
+		            	   }
+		            	   
+		            	   SendMessageToPair(mess1, p1);
+		            	   break;
+		            	   
+		               case 109:
+		            	   CorpChangePositionMessage cp = (CorpChangePositionMessage) message;
+		            	   Pair p2 = FindCorpPair(cp.UserID);
+		            	   
+		            	   ChangePositionMessage mess2 = new ChangePositionMessage();
+		            	   mess2.p1 = cp.p1;
+		            	   mess2.p2 = cp.p2;
+		            	   
+		            	   while(p2.gameinfo.CurrentGameState.isInRemoveState());
+		            	   
+		            	   p2.gameinfo.CurrentGameState.setInRemoveState(true);
+		            	   
+		            	   boolean control1 = true;
+		            	   
+		            	   while(control1) {
+		            		   if(UsersIsAllReady(cp.UserID)) {
+		            			   for(User u: p2.player) {
+		            				   sendMessageToClient(u.oos, mess2);
+		            			   }
+		            			   control1 = false;
+		            		   }
+		            	   }
+		            	   
+		            	   System.out.println("已将ChangePositionMessage发送！");
+		            	   
+		            	   Game_info gg1 = new Game_info(p2.gameinfo.CurrentGameState);
+		            	   RemoveAndDrop rad1 = new RemoveAndDrop(gg1);
+		            	   rad1.TwoPositionRemove(cp.p1, cp.p2);
+		            	   
+		            	   if(gg1.getGrade() != 0) {
+		            		   Game_infoMessage mess3 = new Game_infoMessage();
+		            		   mess3.gg = gg1;
+		            		   SendMessageToPair(mess3, p2);
+		            		   
+		            		   System.out.println("已将Game_infoMessage发送！");
+		            		   
+		            		   //这里可能会出问题！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+		            		   for(int i = 0; i < p2.player.size(); i++) {
+		            			   p2.player.get(i).CanReceiveMessage = false;
+		            		   }
+		            		   
+		            		   while(gg1.isCanDirectRemove()) {
+		            			   Game_info gg2 = new Game_info(p2.gameinfo.CurrentGameState);
+		                    	   RemoveAndDrop rad2 = new RemoveAndDrop(gg2);
+		                    	   rad2.DirectRemove();
+		            			   
+		                    	   Game_infoMessage mess = new Game_infoMessage();
+		                		   mess.gg = gg2;
+		                		   
+		            			   control1 = true;
+		                		   while(control1) {
+		                    		   if(UsersIsAllReady(cp.UserID)) {
+		                    			   SendMessageToPair(mess, p2);
+		                    			   control1 = false;
+		                    		   }
+		                    	   }
+		                		   
+		                		 //这里可能会出问题！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+		                		   for(int i = 0; i < p2.player.size(); i++) {
+			            			   p2.player.get(i).CanReceiveMessage = false;
+			            		   }
+		            		   }
+		            		   
+		            	   } else {
+		            		   ChangePositionMessage mess4 = new ChangePositionMessage();
+		            		   mess4.p1 = cp.p1;
+		            		   mess4.p2 = cp.p2;
+		            		   
+		            		   control1 = true;
+		            		   while(control1) {
+		                		   if(UsersIsAllReady(cp.UserID)) {
+		                			   SendMessageToPair(mess4, p2);
+		                			   control1 = false;
+		                		   }
+		                	   }
+		            	   }
+		            	   
+		            	   p2.gameinfo.CurrentGameState.setInRemoveState(false);
+		            	   break;
+		            	   
+		               case 111:
+		            	   CorpDirectRemoveMessage cdr = (CorpDirectRemoveMessage) message;
+		            	   Pair p3 = FindCorpPair(cdr.UserID);
+		            	   
+		            	   while(p3.gameinfo.CurrentGameState.isInRemoveState());
+		            	   
+		            	   p3.gameinfo.CurrentGameState.setInRemoveState(true);
+		            	   
+		            	   Game_info gg2 = new Game_info(p3.gameinfo.CurrentGameState);
+		            	   RemoveAndDrop rad2 = new RemoveAndDrop(gg2);
+		            	   rad2.DirectRemove();
+		            		 
+		            	   if(gg2.getGrade() != 0) {
+		            		   Game_infoMessage mess = new Game_infoMessage();
+		            		   mess.gg = gg2;
+		            		 //给所有协作的玩家发送mess
+		            		   SendMessageToPair(mess, p3);
+		            	   } 
+		            	   p3.gameinfo.CurrentGameState.setInRemoveState(false);
+		            	   break;
+		            	   
+		               case	113:
+		            	   CorpUseToolMessage ctm = (CorpUseToolMessage) message;
+		            	   Pair p4 = FindCorpPair(ctm.UserID);
+		            	   
+		            	   while(p4.gameinfo.CurrentGameState.isInRemoveState());
+		            	   
+		            	   p4.gameinfo.CurrentGameState.setInRemoveState(true);
+		            	   
+		            	   Game_info gg3 = new Game_info(p4.gameinfo.CurrentGameState);
+		            	   RemoveAndDrop rad3 = new RemoveAndDrop(gg3);
+		            	   rad3.UseToolToRemove(ctm.p);
+		            	   
+		            	   
+		            	   Game_infoMessage mess = new Game_infoMessage();
+		            	   mess.gg = gg3;
+		            	   
+		            	   control1 = true;
+		        		   while(control1) {
+		            		   if(UsersIsAllReady(ctm.UserID)) {
+		            			   SendMessageToPair(mess, p4);
+		            			   control1 = false;
+		            		   }
+		            	   }
+		        		   
+		        		   p4.gameinfo.CurrentGameState.setInRemoveState(false);
+		            	   break;
+		            	  
+		               //单击开始游戏
+		               case 106:
+		            	   SingleGameStartMessage sgs = (SingleGameStartMessage) message;
+		            	   Single s1 = FindSingle(sgs.UserID);
+		            	   
+		            	   GameState gg4 = new GameState(sgs.UseTool_C);
+		            	   gg4.setUseTool_D(sgs.UseTool_D);
+		            	   gg4.setUseTool_E(sgs.UseTool_E);
+		            	   
+		            	   gg4.setCurrentPane(MakeNewPane.GetInitialPane());
+		            	   gg4.setTool_E(MakeNewPane.getTool_e());
+		            	   gg4.setNeedUseTool_E(false);
+		            	   
+		            	   GameStateMessage gsm = new GameStateMessage();
+		            	   gsm.CurrentGameState = gg4;
+		            	   
+		            	   s1.gameinfo = gsm;
+		            	   sendMessageToClient(user.oos, gsm);
+		            	   break;
+		            	   
+		               //单机交换消除   
+		               case 110:
+		            	   SingleChangePositionMessage scpm = (SingleChangePositionMessage) message;
+		            	   
+		            	   System.out.println(scpm.UserID);
+		            	   
+		            	   Single s2 = FindSingle(scpm.UserID);
+		            	  
+		            	   if(s2 != null){
+		            		   GameState gs = s2.gameinfo.CurrentGameState;
+		            		   Game_info gg = new Game_info(gs);
+		            	   
+		            		   RemoveAndDrop rad = new RemoveAndDrop(gg);
+		            		   rad.TwoPositionRemove(scpm.p1, scpm.p2);
+		            		
+		            		   Game_infoMessage mes = new Game_infoMessage();
+		            		   mes.gg = gg;
+		            		   //发送mess
+		            		   sendMessageToClient(user.oos, mes);
+		            	   } else {
+		            		   System.out.println("s2不存在！");
+		            	   }
+		            	   
+		            	   break;
+		            	   
+		               //单机直接消除   
+		               case 105:
+		            	   SingleDirectremoveMessage sdm = (SingleDirectremoveMessage) message;
+		            	   System.out.println(sdm.UserID);
+		            	   
+		            	   Single s3 = FindSingle(sdm.UserID);
+		            	   
+		            	   if(s3 != null) {
+		            		   GameState gs1 = s3.gameinfo.CurrentGameState;
+		            		   Game_info gg5 = new Game_info(gs1);
+		            	   
+		            		   RemoveAndDrop rad4 = new RemoveAndDrop(gg5);
+		            		   rad4.DirectRemove();
+		            	   
+		            		   Game_infoMessage mes = new Game_infoMessage();
+		            		   mes.gg = gg5;
+		            		   //发送mess
+		            		   sendMessageToClient(user.oos, mes);
+		            	   }
+		            	   break;
+		            	   
+		            	 //单机道具消除   
+		               case 107:
+		            	   SingleUseToolMessage stm = (SingleUseToolMessage) message;
+		            	   Single s4 = FindSingle(stm.UserID);
+		            	   
+		            	   GameState gs2 = s4.gameinfo.CurrentGameState;
+		            	   Game_info gg6 = new Game_info(gs2);
+		            	   
+		            	   RemoveAndDrop rad5 = new RemoveAndDrop(gg6);
+		            	   rad5.UseToolToRemove(stm.p);
+		            	   
+		            	   Game_infoMessage mes = new Game_infoMessage();
+		        		   mes.gg = gg6;
+		        		   //发送mess
+		        		   sendMessageToClient(user.oos, mes);
+		            	   break;
+		            	   
+		               case 119:
+		            	   SingleGetStateMessage ssm = (SingleGetStateMessage) message;
+		            	   Single ss = FindSingle(ssm.UserID);
+		            	   
+		            	   sendMessageToClient(user.oos, ss.gameinfo);
+		            	   break;
+		            	  
+		            	 //Pk开始游戏
+		               case 103:
+		            	   PkGameStartMessage pst = (PkGameStartMessage) message;
+		            	   
+		            	   Pair pair1 = FindPkPair(pst.UserID1);
+		            	   Pair pair2 = FindPkPair(pst.UserID2);
+		            	   
+		            	   GameState gst1 = new GameState(false);
+		            	   gst1.setCurrentPane(MakeNewPane.GetInitialPane());
+		            	   gst1.setTool_E(MakeNewPane.getTool_e());
+		            	   gst1.setNeedUseTool_E(false);
+		            	   pair1.gameinfo.CurrentGameState = gst1;
+		            	   
+		            	   GameState gst2 = new GameState(false);
+		            	   gst2.setCurrentPane(MakeNewPane.GetInitialPane());
+		            	   gst2.setTool_E(MakeNewPane.getTool_e());
+		            	   gst2.setNeedUseTool_E(false);
+		            	   pair2.gameinfo.CurrentGameState = gst2;
+		            	   
+		            	   PkGameStateMessage pkmess1 = new PkGameStateMessage();
+		            	   pkmess1.gamestate = gst2;
+		            	   
+		            	   PkGameStateMessage pkmess2 = new PkGameStateMessage();
+		            	   pkmess2.gamestate = gst1;
+		            	   
+		            	   SendMessageToPair(pair1.gameinfo, pair1);
+		            	   SendMessageToPair(pkmess1, pair1);
+		            	   
+		            	   SendMessageToPair(pair2.gameinfo, pair2);
+		            	   SendMessageToPair(pkmess2, pair2);
+		            	   break;
+		            	   
+		            	 //Pk交换消除   
+		               case 101:
+		            	   PkChangePositionMessage pcpm = (PkChangePositionMessage) message;
+		            	   
+		            	   Pair pair3 = FindPkPair(pcpm.UserID);
+		            	   Pair pair4 = FindPkOtherPair(pcpm.UserID);
+		            	   
+		            	   SendMessageToPair(pcpm, pair4);
+		            	   
+		            	   Game_info gg7 = new Game_info(pair3.gameinfo.CurrentGameState);
+		            	   RemoveAndDrop rad6 = new RemoveAndDrop(gg7);
+		            	   rad6.TwoPositionRemove(pcpm.p1, pcpm.p2);
+		            		
+		            	   if(gg7.getGrade() != 0) {
+		            		   Game_infoMessage mess7 = new Game_infoMessage();
+		            		   mess7.gg = gg7;
+		            			//给消除玩家发送mess1
+		            		   SendMessageToPair(mess7, pair3);
+		            		   
+		            		   PkGame_infoMessage mess8 = new PkGame_infoMessage();
+		            		   mess8.gg = gg7;
+		            		   //给Pk玩家发送mess2
+		            		   SendMessageToPair(mess8, pair4);
+		            	   } else {
+		            			ChangePositionMessage mess9 = new ChangePositionMessage();
+		            			mess9.p1 = pcpm.p1;
+		            			mess9.p2 = pcpm.p2;
+		            			//给消除玩家发送mess1
+		            			SendMessageToPair(mess9, pair3);
+		            			SendMessageToPair(pcpm, pair4);
+		            		}
+		            	   
+		            	   break;
+		            	   
+		            	   
+		            	 //pk直接消除  
+		               case 102:
+		            	   PkDirectRemoveMessage pdrm = (PkDirectRemoveMessage) message;
+		            	   
+		            	   Pair pair5 = FindPkPair(pdrm.UserID);
+		            	   Pair pair6 = FindPkOtherPair(pdrm.UserID);
+		            	   
+		            	   Game_info gg8 = new Game_info(pair5.gameinfo.CurrentGameState);
+		            	   RemoveAndDrop rad8 = new RemoveAndDrop(gg8);
+		            	   rad8.DirectRemove();
+		            	 
+		            	   if(gg8.getGrade() != 0) {
+		            		   Game_infoMessage mes1 = new Game_infoMessage();
+		            		   mes1.gg = gg8;
+		            		   //发送给消除玩家信息mess1
+		            		   SendMessageToPair(mes1, pair5);
+		            		   
+		            		   PkGame_infoMessage mes2 = new PkGame_infoMessage();
+		            		   mes2.gg = gg8;
+		            		   SendMessageToPair(mes2, pair6);
+		            	 }
+		            	   break;
+		            	   
+		            	 //Pk道具消除   
+		               case 104:
+		            	   PkUseToolMessage putm = (PkUseToolMessage) message;
+		            	   
+		            	   Pair pair7 = FindPkPair(putm.UserID);
+		            	   Pair pair8 = FindPkOtherPair(putm.UserID);
+		            	   
+		            	   Game_info gg9 = new Game_info(pair7.gameinfo.CurrentGameState);
+		            	   RemoveAndDrop rad9 = new RemoveAndDrop(gg9);
+		            	   rad9.UseToolToRemove(putm.p);
+		            	   
+		            	   Game_infoMessage mes3 = new Game_infoMessage();
+		            	   mes3.gg = gg9;
+		            	   SendMessageToPair(mes3, pair7);
+		            	   
+		            	   PkGame_infoMessage mes4 = new PkGame_infoMessage();
+		            	   mes4.gg = gg9;
+		            	   SendMessageToPair(mes3, pair8);
+		            	   
+		            	   break;
+		               
+		               case 116:
+		            	   PkSelectPositionMessage psp = (PkSelectPositionMessage) message;
+		            	   Pair pa1 = FindPkPair(psp.UserID);
+		            	   
+		            	   SendMessageToPair(psp, pa1);
+		            	   break;
+		            	   
+		               case 117:
+		            	   SelectPositionMessage spm = (SelectPositionMessage) message;
+		            	   Pair pa2 = FindCorpPair(spm.UserID);
+		            	   
+		            	   for(User u: pa2.player) {
+		            		   if(!u.id.equals(u.id)) {
+		            			   sendMessageToClient(u.oos, spm);
+		            		   }
+		            	   }
+		            	   break;
+		               
+		               case 118:
+		            	   FinishDropMessage fdm = (FinishDropMessage) message;
+		            	   user.CanReceiveMessage = true;
+		            	   break;
+		            	
+		               case 120:
+		            	   PkGetStateMessage pgsm = (PkGetStateMessage) message;
+		            	   
+		            	   Pair pair9 = FindPkPair(pgsm.UserID);
+		            	   Pair pair10 = FindPkOtherPair(pgsm.UserID);
+		            	   
+		            	   PkGameStateMessage pg = new PkGameStateMessage();
+		            	   pg.gamestate = pair9.gameinfo.CurrentGameState;
+		            	   
+		            	   sendMessageToClient(user.oos, pair9.gameinfo);
+		            	   
+		            	   SendMessageToPair(pg, pair10);
+		            	  break;
+		            	  
+		               case 121:
+		            	   CorpGetStateMessage cgsm = (CorpGetStateMessage) message;
+		            	   Pair p8 = FindCorpPair(cgsm.UserID);
+		            	   
+		            	   sendMessageToClient(user.oos, p8.gameinfo);
+		            	   break;
+		            	   
+		               case 122:
+		            	   CorpTestMessage ctme = (CorpTestMessage) message;
+		            	   user.id = ctme.UserID;
+		            	   System.out.println(user.id);
+		            	   break;
+					}
+				}
+			} catch (SocketException e) {
+				// 删除一个人
+				System.out.println("断开");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void SendMessageToPair(Message a, Pair p) {
+			try {
+				for (User u : p.player) {
+					sendMessageToClient(u.oos, a);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public boolean UsersIsAllReady(String id) {
+		Pair p = FindCorpPair(id);
+		for (User u : p.player) {
+			if (!u.CanReceiveMessage) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public Pair FindCorpPair(String id) {
+
+		for (Pair p : pairs) {
+			for (User u : p.player) {
+				if (u.id.equals(id)) {
+					return p;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public Single FindSingle(String id) {
+		for (Single s : single) {
+			System.out.println(s.player.id);
+
+			if (s.player.id.equals(id)) {
+				return s;
+			}
+		}
+
+		System.out.println("没找到User！");
+		return null;
+	}
+
+	public Pair FindPkPair(String id) {
+
+		for (PkPair p : pk_pairs) {
+			for (User u : p.p1.player) {
+				if (u.id.equals(id)) {
+					return p.p1;
+				}
+			}
+
+			for (User u : p.p2.player) {
+				if (u.id.equals(id)) {
+					return p.p2;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public Pair FindPkOtherPair(String id) {
+
+		for (PkPair p : pk_pairs) {
+			for (User u : p.p1.player) {
+				if (u.id.equals(id)) {
+					return p.p2;
+				}
+			}
+
+			for (User u : p.p2.player) {
+				if (u.id.equals(id)) {
+					return p.p1;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public void sendMessageToClient(ObjectOutputStream oos, Message message) {
+		try {
+			oos.writeObject(message);
+			oos.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+}

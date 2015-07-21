@@ -1,0 +1,20 @@
+package test;
+
+import message.Message;
+
+public class TestMessage1 extends Message{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public String info1,info2;
+	
+	public TestMessage1(){
+		type=-1000;
+		info1="TestMessage1_pre";
+		info2="TestMessage1_post";
+	}
+
+}

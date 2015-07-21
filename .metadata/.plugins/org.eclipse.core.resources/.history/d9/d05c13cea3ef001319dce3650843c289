@@ -1,0 +1,124 @@
+package net;
+
+import java.io.IOException;
+
+import test.TestMessage1;
+import test.TestMessage2;
+
+import message.LoginBackMessage;
+import message.LoginMessage;
+import message.Message;
+import message.RegisterBackMessage;
+import message.RegisterMessage;
+
+public class Test {
+
+	public static Test test;
+	public Net net;
+	public Object lock;
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		test = new Test();
+		test.go();
+	}
+
+	public void go() {
+		try {
+			net = new Net();
+			Thread1 t1 = new Thread1();
+			Thread2 t2 = new Thread2();
+			Thread3 t3 = new Thread3();
+			Thread4 t4 = new Thread4();
+			t1.start();
+			t2.start();
+			// t3.start();
+			// t4.start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public class Thread1 extends Thread {
+		public void run() {
+			int i = 0;
+			while (i <= 5000) {
+				synchronized (lock) {
+					lock.notifyAll();
+					System.out.println("t1");
+					net.sendMessage(new LoginMessage("", ""), "t1");
+					System.out.println("要的是3");
+					LoginBackMessage lbm = (LoginBackMessage) net.getMessage(3,
+							"t1");
+					if (lbm != null)
+						System.out.println(lbm.login_back_info);
+					i++;
+					System.out.println("t1的i是" + i);
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public class Thread2 extends Thread {
+		public void run() {
+			int i = 0;
+			while (i <= 5000) {
+				synchronized (lock) {
+					lock.notifyAll();
+					System.out.println("t2");
+					net.sendMessage(new TestMessage2(), "t2");
+					System.out.println("要的是-1000");
+					TestMessage2 lbm = (TestMessage2) net.getMessage(-1000,
+							"t2");
+					if (lbm != null)
+						System.out.println(lbm.hahaha + " " + lbm.id + " "
+								+ lbm.info + " " + lbm.info);
+					i++;
+					System.out.println("t2的i是" + i);
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public class Thread3 extends Thread {
+		public void run() {
+
+			net.sendMessage(new TestMessage1(), "");
+			TestMessage1 lbm = (TestMessage1) net.getMessage(-2000, "t3");
+			if (lbm != null)
+				System.out.println(lbm.hahaha + " " + lbm.id + " " + lbm.info
+						+ " " + " " + lbm.nunu);
+
+		}
+	}
+
+	public class Thread4 extends Thread {
+		public void run() {
+			while (true) {
+				net.sendMessage(new RegisterMessage("", ""));
+				RegisterBackMessage lbm = (RegisterBackMessage) net.getMessage(
+						1, "t4");
+				if (lbm != null)
+					System.out.println(lbm.register_back_info);
+
+			}
+		}
+	}
+
+}

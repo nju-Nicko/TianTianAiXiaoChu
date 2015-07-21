@@ -1,0 +1,71 @@
+package net;
+
+import java.io.IOException;
+
+import test.TestMessage1;
+import test.TestMessage2;
+
+public class Test {
+	public Object lock = new Object();
+	public Net net;
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+          new Test().go();
+	}
+
+	public void go() {
+		try {
+			net=new Net();
+			Thread1 t1 = new Thread1();
+			Thread2 t2 = new Thread2();
+			t1.start();
+			t2.start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public class Thread1 extends Thread {
+		public void run() {
+			while (true) {
+				synchronized (lock) {
+					lock.notifyAll();
+					net.sendMessage(new TestMessage1());
+					TestMessage1 t1=(TestMessage1)net.getMessage(-1000);
+					if(t1!=null){
+						System.out.println(t1.info1+" "+t1.info2);
+					}
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public class Thread2 extends Thread {
+		public void run() {
+			while (true) {
+				synchronized (lock) {
+					lock.notifyAll();
+					net.sendMessage(new TestMessage2());
+					TestMessage2 t1=(TestMessage2)net.getMessage(-2000);
+					if(t1!=null){
+						System.out.println(t1.info);
+					}
+					try {
+						lock.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+}

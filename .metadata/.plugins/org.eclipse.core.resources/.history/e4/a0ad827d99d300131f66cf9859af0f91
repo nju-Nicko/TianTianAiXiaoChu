@@ -1,0 +1,645 @@
+package presentation.mainui;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Insets;
+
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JToolTip;
+
+import java.awt.Font;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+import javax.swing.JButton;
+import javax.swing.JRadioButton;
+import javax.swing.border.Border;
+
+public class MainFrame {
+
+	private JFrame frame;
+	private int frameFirstX, frameFirstY;
+	boolean clicked = false;
+	boolean entered = false;
+	private Color bg = new Color(23, 42, 72);
+	static PhotoSelector ps;
+    static int photo_id;
+    static JLayeredPane panel;
+    FriendList fl;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					MainFrame window = new MainFrame();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public MainFrame() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(300, 100, 874, 581);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		frame.setUndecorated(true);
+		frame.setBackground(new Color(0, 0, 0, 0));
+		frame.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+
+			}
+
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+
+			}
+
+			public void mousePressed(MouseEvent e) {
+				frameFirstX = e.getX();
+				frameFirstY = e.getY();
+			}
+		});
+		frame.addMouseMotionListener(new MouseMotionListener() {
+			public void mouseMoved(MouseEvent e) {
+	
+			}
+
+			public void mouseDragged(MouseEvent e) {
+					int detX = e.getX() - frameFirstX;
+					int detY = e.getY() - frameFirstY;
+					frame.setBounds(frame.getX() + detX, frame.getY() + detY,
+							frame.getWidth(), frame.getHeight());
+			}
+		});
+
+		panel = new JLayeredPane();
+		panel.setBounds(0, 0, 858, 546);
+		frame.getContentPane().add(panel);
+		panel.setBorder(new PanelBorder());
+		panel.setLayout(null);
+
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(1, 1, 856, 32);
+		panel.add(panel_1);
+		panel_1.setLayout(null);
+		panel_1.setBackground(bg);
+
+		final JLabel lblNewLabel = new MyLabel("\u00D7");
+		lblNewLabel.setFont(new Font("微软雅黑", Font.PLAIN, 22));
+		lblNewLabel.setBounds(825, 0, 22, 33);
+		lblNewLabel.setToolTipText("关闭天天爱消除");
+		lblNewLabel.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+				lblNewLabel.setForeground(new Color(189, 180, 123));
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				frame.dispose();
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				lblNewLabel.setForeground(Color.red);
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			public void mousePressed(MouseEvent e) {
+
+			}
+		});
+		panel_1.add(lblNewLabel);
+
+		final JLabel lblNewLabel_1 = new MyLabel("-");
+		lblNewLabel_1.setFont(new Font("微软雅黑", Font.PLAIN, 22));
+		lblNewLabel_1.setBounds(795, 0, 22, 33);
+		lblNewLabel_1.setToolTipText("最小化天天爱消除");
+		lblNewLabel_1.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				frame.setExtendedState(JFrame.ICONIFIED);
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			public void mousePressed(MouseEvent e) {
+
+			}
+		});
+		panel_1.add(lblNewLabel_1);
+
+		JPanel panel_2 = new JPanel();
+		panel_2.setBounds(5, 32, 847, 74);
+		panel.add(panel_2);
+		panel_2.setLayout(null);
+		panel_2.setBackground(bg);
+		panel_2.setBorder(new PanelBorder2());
+
+		final JButton btnNewButton = new PlayButton();
+		btnNewButton.setBounds(360, 7, 128, 56);
+		btnNewButton.setContentAreaFilled(false);
+		btnNewButton.setBorder(null);
+		btnNewButton.setToolTipText("选择您希望进行的游戏类型");
+		btnNewButton.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+				entered = false;
+				clicked = false;
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				clicked = true;
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				entered = true;
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+			}
+
+			public void mousePressed(MouseEvent e) {
+
+			}
+		});
+		panel_2.add(btnNewButton);
+
+		JPanel panel_3 = new PhotoPanel();
+		panel_3.setBounds(555, 7, 60, 60);
+		panel_2.add(panel_3);
+		panel_3.setBorder(new PhotoPanelBorder());
+		panel_3.setLayout(null);
+		panel_3.addMouseListener(new MouseListener(){
+			public void mouseEntered(MouseEvent e){
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+			
+			public void mouseExited(MouseEvent e){
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+			
+			public void mouseClicked(MouseEvent e){
+				
+			}
+			
+			public void mousePressed(MouseEvent e){
+				
+			}
+			
+			public void mouseReleased(MouseEvent e){
+				ps=new PhotoSelector();
+				ps.setLocation(137, 140);
+				panel.add(ps);
+				panel.setLayer(ps, JLayeredPane.POPUP_LAYER);
+			}
+		});
+
+		JLabel lblNewLabel_2 = new JLabel("\u98D8\u6447\u4EA6\u900D\u9065");
+		lblNewLabel_2.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+		lblNewLabel_2.setForeground(Color.white);
+		lblNewLabel_2.setBounds(629, 0, 218, 25);
+		panel_2.add(lblNewLabel_2);
+
+		final JButton btnNewButton_1 = new HomeButton();
+		btnNewButton_1.setBounds(26, 10, 195, 54);
+		btnNewButton_1.setIcon(new ImageIcon(MainFrame.class
+				.getResource("/img/HomeButton.png")));
+		btnNewButton_1.setContentAreaFilled(false);
+		btnNewButton_1.setBorder(null);
+		btnNewButton_1.setToolTipText("返回大厅");
+		btnNewButton_1.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+				btnNewButton_1.setIcon(new ImageIcon(MainFrame.class
+						.getResource("/img/HomeButton.png")));
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				btnNewButton_1.setIcon(new ImageIcon(MainFrame.class
+						.getResource("/img/HomeButton2.png")));
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			public void mousePressed(MouseEvent e) {
+
+			}
+		});
+		panel_2.add(btnNewButton_1);
+
+		JPanel panel_5 = new BodyPanel();
+		panel_5.setBounds(5, 105, 847, 381);
+		panel.add(panel_5);
+		panel_5.setLayout(null);
+
+		JPanel panel_7 = new JPanel();
+		panel_7.setBounds(27, 27, 505, 307);
+		panel_5.add(panel_7);
+		panel_7.setLayout(null);
+
+		final JRadioButton radioButton = new JRadioButton("");
+		radioButton.setBounds(465, 340, 21, 23);
+		radioButton.setOpaque(false);
+		radioButton.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+				radioButton.setSelected(false);
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				radioButton.setSelected(true);
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			public void mousePressed(MouseEvent e) {
+
+			}
+		});
+		panel_5.add(radioButton);
+
+		final JRadioButton radioButton_1 = new JRadioButton("");
+		radioButton_1.setBounds(488, 340, 21, 23);
+		radioButton_1.setOpaque(false);
+		radioButton_1.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+				radioButton_1.setSelected(false);
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				radioButton_1.setSelected(true);
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			public void mousePressed(MouseEvent e) {
+
+			}
+		});
+		panel_5.add(radioButton_1);
+
+		final JRadioButton radioButton_2 = new JRadioButton("");
+		radioButton_2.setBounds(511, 340, 21, 23);
+		radioButton_2.setOpaque(false);
+		radioButton_2.addMouseListener(new MouseListener() {
+			public void mouseExited(MouseEvent e) {
+				radioButton_2.setSelected(false);
+				frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+			public void mouseReleased(MouseEvent e) {
+
+			}
+
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				radioButton_2.setSelected(true);
+				frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+
+			public void mousePressed(MouseEvent e) {
+
+			}
+		});
+		panel_5.add(radioButton_2);
+
+		ButtonGroup group = new ButtonGroup();
+		group.add(radioButton);
+		group.add(radioButton_1);
+		group.add(radioButton_2);
+
+		JPanel panel_6 = new JPanel();
+		panel_6.setBounds(1, 486, 856, 59);
+		panel.add(panel_6);
+		panel_6.setLayout(null);
+		panel_6.setBackground(bg);
+
+		JPanel panel_4 = new JPanel();
+		panel_4.setBounds(4, 0, 828, 19);
+		panel_4.setBackground(new Color(4, 4, 16));
+		panel_6.add(panel_4);
+
+		JPanel panel_8 = new JPanel();
+		panel_8.setBounds(1, 33, 4, 455);
+		panel_8.setBackground(bg);
+		panel_8.setLayout(null);
+		panel.add(panel_8);
+
+		JPanel panel_9 = new JPanel();
+		panel_9.setBounds(852, 33, 5, 455);
+		panel_9.setBackground(bg);
+		panel_9.setLayout(null);
+		panel.add(panel_9);
+
+		JPanel panel_10 = new JPanel();
+		panel_10.setLayout(null);
+		panel_10.setBounds(828, 0, 19, 381);
+		panel_10.setBackground(new Color(4, 4, 16));
+		panel_5.add(panel_10);
+
+		JButton friend=new FriendButton();
+		friend.setBounds(800,20,40,40);
+		panel_6.add(friend);
+	}
+
+	// 重写面板边界类
+	public class PanelBorder implements Border {
+		public void paintBorder(Component c, Graphics g, int x, int y, int w,
+				int h) {
+			g.setColor(Color.gray);
+			g.drawRect(0, 0, c.getWidth() - 1, c.getHeight() - 1);
+		}
+
+		public Insets getBorderInsets(Component c) {
+			return new Insets(1, 1, 1, 1);
+		}
+
+		public boolean isBorderOpaque() {
+			return true;
+		}
+	}
+
+	// 重写面板边界类
+	public class PanelBorder2 implements Border {
+		public void paintBorder(Component c, Graphics g, int x, int y, int w,
+				int h) {
+			g.setColor(new Color(86, 109, 161));
+			g.drawLine(0, c.getHeight() - 1, c.getWidth() - 1,
+					c.getHeight() - 1);
+		}
+
+		public Insets getBorderInsets(Component c) {
+			return new Insets(1, 1, 1, 1);
+		}
+
+		public boolean isBorderOpaque() {
+			return true;
+		}
+	}
+
+	// 重写头像面板类
+	public class PhotoPanel extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public void paintComponent(Graphics g) {
+			g.setColor(new Color(0,0,0,0));
+			g.fillRect(0, 0, getWidth(), getHeight());
+			
+			Image i0=new ImageIcon(PhotoSelector.class.getResource("/img/0.jpg")).getImage();
+			Image i1=new ImageIcon(PhotoSelector.class.getResource("/img/1.jpg")).getImage();
+			Image i2=new ImageIcon(PhotoSelector.class.getResource("/img/2.jpg")).getImage();
+			Image i3=new ImageIcon(PhotoSelector.class.getResource("/img/3.jpg")).getImage();
+			Image i4=new ImageIcon(PhotoSelector.class.getResource("/img/4.jpg")).getImage();
+			Image i5=new ImageIcon(PhotoSelector.class.getResource("/img/5.jpg")).getImage();
+			Image i6=new ImageIcon(PhotoSelector.class.getResource("/img/6.jpg")).getImage();
+			switch(photo_id){
+			case 0: g.drawImage(i0, 0, 0,60,60,this); break;
+			case 1: g.drawImage(i1, 0, 0, 60,60,this); break;
+			case 2: g.drawImage(i2, 0, 0, 60,60,this); break;
+			case 3: g.drawImage(i3, 0, 0, 60,60,this); break;
+			case 4: g.drawImage(i4, 0, 0, 60,60,this); break;
+			case 5: g.drawImage(i5, 0, 0, 60,60,this); break;
+			case 6: g.drawImage(i6, 0, 0, 60,60,this); break;
+			}
+		}
+	}
+
+	// 重写头像面板边界类
+	public class PhotoPanelBorder implements Border {
+		public void paintBorder(Component c, Graphics g, int x, int y, int w,
+				int h) {
+			g.setColor(Color.gray);
+			g.drawRect(0, 0, c.getWidth() - 1, c.getHeight() - 1);
+		}
+
+		public Insets getBorderInsets(Component c) {
+			return new Insets(1, 1, 1, 1);
+		}
+
+		public boolean isBorderOpaque() {
+			return true;
+		}
+	}
+
+	// 重写开始按钮类
+	public class PlayButton extends JButton {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public void paintComponent(Graphics g) {
+			if (!clicked && !entered) {
+				Image image = new ImageIcon(
+						MainFrame.class.getResource("/img/play.png"))
+						.getImage();
+				g.drawImage(image, 0, 0, this);
+			} else if (entered && clicked) {
+				Image image = new ImageIcon(
+						MainFrame.class.getResource("/img/play2.png"))
+						.getImage();
+				g.drawImage(image, 0, 0, this);
+			} else if (entered && !clicked) {
+				Image image = new ImageIcon(
+						MainFrame.class.getResource("/img/play3.png"))
+						.getImage();
+				g.drawImage(image, 0, 0, this);
+			}
+		}
+
+		public JToolTip createToolTip() {
+			JToolTip tip = new MyToolTip();
+			return tip;
+		}
+	}
+
+	// 重写提示框类
+	public class MyToolTip extends JToolTip {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public MyToolTip() {
+			super();
+			super.setBorder(null);
+		}
+
+		public Dimension getPreferredSize() {
+			return new Dimension(getTipText().toCharArray().length * 15, 20);
+		}
+
+		public void paintComponent(Graphics g) {
+			if (this.getTipText() != null) {
+				g.setColor(new Color(0, 0, 0, 190));
+				g.fillRoundRect(0, 0, getWidth(), getHeight(), 3, 3);
+				JLabel l = new JLabel(getTipText());
+				l.setBounds(3, 0, getWidth(), getHeight() - 2);
+				l.setForeground(Color.white);
+				l.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+				add(l);
+			}
+		}
+
+	}
+
+	// 重写标签类
+	public class MyLabel extends JLabel {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public MyLabel() {
+			super();
+		}
+
+		public MyLabel(String str) {
+			super(str);
+			setForeground(new Color(189, 180, 123));
+		}
+
+		public JToolTip createToolTip() {
+			JToolTip tip = new MyToolTip();
+			return tip;
+		}
+	}
+
+	// 重写主界面按钮类
+	public class HomeButton extends JButton {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public JToolTip createToolTip() {
+			JToolTip tip = new MyToolTip();
+			return tip;
+		}
+	}
+
+	// HeaderPanel
+	public class HeaderPanel extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public void paintComponent(Graphics g) {
+			// Image image=new
+			// ImageIcon(MainFrame.class.getResource("/img/header.jpg")).getImage();
+			// g.drawImage(image, 0, 0, getWidth(), getHeight(),this);
+		}
+	}
+
+	// BodyPanel
+	public class BodyPanel extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public void paintComponent(Graphics g) {
+			Image image = new ImageIcon(
+					MainFrame.class.getResource("/img/body.jpg")).getImage();
+			g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+		}
+	}
+	
+	public class FriendButton extends JButton{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		public FriendButton(){
+			setBorder(null);
+		}
+		
+		public void paintComponent(Graphics g){
+			Image i=new ImageIcon(MainFrame.class.getResource("/img/friend.png")).getImage();
+			g.drawImage(i,0,0,40,40,this);
+		}
+		
+	}
+}

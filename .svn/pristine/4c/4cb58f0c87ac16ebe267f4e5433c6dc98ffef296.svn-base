@@ -1,0 +1,46 @@
+package main;
+
+import java.awt.EventQueue;
+import java.io.IOException;
+
+import net.Net;
+import presentation.gameui.start;
+import presentation.gameui.startnext;
+import presentation.loginui.LoginUI;
+import presentation_singleGameGUI.singleGameGUI;
+
+public class Startup {
+
+	public static LoginUI window;
+	public static Net net;
+
+	public static void main(String[] args) {
+
+		try {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() { // TODO Auto-generated method stub
+					window = new LoginUI();
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			net = new Net();
+		}
+		// TODO Auto-generated
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		/*
+		 * try { net = new Net(); } catch (Exception e) { e.printStackTrace(); }
+		 * start a = new start(); startnext b = new startnext(); singleGameGUI
+		 * single = new singleGameGUI(); single.singlenamestart(""); b.state1();
+		 * 
+		 * // a.state2();
+		 */
+	}
+}

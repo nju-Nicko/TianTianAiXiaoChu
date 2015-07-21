@@ -1,0 +1,18 @@
+package message;
+
+public class CooperateRequestMessage extends Message{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public String user,friend;
+	
+	public CooperateRequestMessage(String u,String f){
+		user=u;
+		friend=f;
+		type=-200;
+	}
+
+}

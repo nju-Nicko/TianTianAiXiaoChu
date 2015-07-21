@@ -1,0 +1,7 @@
+package presentation.mainui;
+
+import javax.swing.JFrame;
+
+public class SettingsFrame extends JFrame {
+
+}

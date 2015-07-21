@@ -1,0 +1,152 @@
+package presentation_pkGameGUI;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.sql.Date;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.awt.*;
+import javax.print.DocFlavor.URL;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.JToolTip;
+import javax.swing.border.Border;
+import javax.swing.*;
+
+public class pkGameGUI {
+	// 是否存在提示道具
+	static JLayeredPane layeredpane;
+	static JPanel pane;
+	static int dropdirection;
+	static int dropdirection_cplayer;
+	static private Boolean isHaveRemind;
+	// 提示道具的使用坐标
+	static int remindx1;
+	static int remindy1;
+	static int remindx2;
+	static int remindy2;
+	// 鼠标选中坐标
+	protected static int last_x;
+	protected static int last_y;
+	protected static int now_x;
+	protected static int now_y;
+	// 上次连击的时间 时间定时器自己定义的gameTimer 由于直接获取当前时间慢，而且只精确到秒
+	static int lastDoubleHitTime;// 上次连击时间
+	static int lastTwoHitTime;// 倒数第二次连击时间
+	static int doublehitCount;// 当前连击数
+	
+	static int doublehitCount_cplayer;// 当前连击数
+	static Boolean doublehitState;
+	static Boolean doublehitState_cplayer;
+	static int state;
+	static int state_cplayer;
+	// 鼠标当前位置
+	static int mousex;
+	static int mousey;
+	// cp鼠标当前位置
+		static int mousex_cplayer;
+		static int mousey_cplayer;
+	// 是否为完美状态连击五次后产生的
+	static public Boolean perfectState;
+	static public Boolean perfectState_cplayer;
+	static public int perfectStateStartTime;
+
+	
+	// private JPanel gamepanel;
+	static int time = 60;// 1s为一单位
+	static protected int grade;// 分数
+    static protected int cpgrade;
+	static public guiUpdateObject gameRange = new guiUpdateObject();
+    static public guiUpdateObject gameRange_cplayer = new guiUpdateObject();
+	private String ID;
+	private String cpID;
+	public static int[][] rebuildGameRange = new int[9][9];
+	public static int[][] rebuildGameRange_cplayer = new int[9][9];
+	public static JFrame frame;
+	static JProgressBar timejpb;
+	static gameTimer timerObject;
+	static Timer timeCaulater;
+	static Timer gradetimer;
+	static Timer gradetimer_cplayer;
+	static GameGUI_remindThread remindthread;
+	static pkGameGUI_getMoveThread getMove;
+
+	static pkGameGUI_updateThread updatethread;
+	static pkGameGUI_methon sgg;
+
+	public static void main(String args[]) {
+		pkGameGUI singlegame = new pkGameGUI();
+		sgg = new pkGameGUI_methon();
+		singlegame.initilize();
+		getMove = new pkGameGUI_getMoveThread(singlegame);
+		getMove.start();
+		remindthread = new GameGUI_remindThread(singlegame);
+		remindthread.start(); // 如果不存在提示道具则不启动线程
+		updatethread = new pkGameGUI_updateThread(singlegame);
+		updatethread.start();
+	}
+
+	public void initilize() {
+		sgg.initlizeGameValue();
+		sgg.initlizeGameFrame();
+		layeredpane = new JLayeredPane(); // 重要
+		layeredpane.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+		layeredpane.setLayout(null);
+		frame.add(layeredpane);
+		// layeredpane.setOpaque(false);
+		pane = new JPanel();
+		pane.setBounds(0, 0,frame.getWidth(), frame.getHeight());
+		pane.setOpaque(false);
+		pane.setLayout(null);
+		layeredpane.add(pane);
+		// 窗口操作的添加
+		pkGameGUI_exitepanel exite = new pkGameGUI_exitepanel();
+		exite.initlizeExitepanel();
+		// 成绩信息，头像信息展示panel
+		pkGameGUI_infopane info = new pkGameGUI_infopane();
+		info.initlizeInfopane();
+		pkGameGUI_cplayer_infopane infocp = new pkGameGUI_cplayer_infopane();
+		infocp.initlizeInfopane();
+		// 游戏界面的初始化，gamepanel已经封装好
+		pkGameGUI_gamepane gamepane = new pkGameGUI_gamepane();
+		gamepane.initlizeGamepane();
+		pkGameGUI_cplayer_gamepane gamepanecp = new pkGameGUI_cplayer_gamepane();
+		gamepanecp.initlizeGamepane();
+		// 游戏计时器的初始化
+		pkGameGUI_timepane timepane = new pkGameGUI_timepane();
+		timepane.initlizeTimepane();
+		// 连击次数的记录器，和动态显示器
+		pkGameGUI_powerpane powerpane = new pkGameGUI_powerpane();
+		powerpane.initlizePowerpane();
+		pkGameGUI_cplayer_powerpane powerpanecp = new pkGameGUI_cplayer_powerpane();
+		powerpanecp.initlizePowerpane();
+		// 边框的初始化
+		pkGameGUI_showpane showpane = new pkGameGUI_showpane();
+		showpane.initlizeShowpane();
+		// 动态小边框
+		JPanel panellabel = new JPanel();
+		panellabel.setBounds(520, 550, 70, 80);
+		panellabel.setBackground(new Color(70, 70, 70));
+		panellabel.add(new JLabel("动态小边框"));
+		pane.add(panellabel);
+
+		// ************************************************************************************
+
+	}
+
+}

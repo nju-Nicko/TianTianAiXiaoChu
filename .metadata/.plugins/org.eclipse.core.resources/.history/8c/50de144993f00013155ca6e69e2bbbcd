@@ -1,0 +1,93 @@
+package presentation.mainui;
+
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Graphics;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JCheckBox;
+import javax.swing.JButton;
+
+public class SettingsFrame {
+
+	private JFrame frame;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					SettingsFrame window = new SettingsFrame();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public SettingsFrame() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 364, 247);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		frame.setUndecorated(true);
+		frame.setBackground(new Color(0,0,0,0));
+		
+		JPanel panel = new MyPanel();
+		panel.setBounds(0, 0, 348, 209);
+		frame.getContentPane().add(panel);
+		panel.setLayout(null);
+		
+		JComboBox<String> comboBox = new JComboBox<String>(new String[]{"横向消除","竖向消除"});
+		comboBox.setBounds(166, 53, 97, 21);
+		panel.add(comboBox);
+		
+		JLabel lblNewLabel = new MyLabel("消除方向");
+		lblNewLabel.setBounds(34, 56, 54, 15);
+		panel.add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new MyLabel("声音");
+		lblNewLabel_1.setBounds(34, 110, 54, 15);
+		panel.add(lblNewLabel_1);
+		
+		JCheckBox chckbxNewCheckBox = new JCheckBox("开闭声音");
+		chckbxNewCheckBox.setBounds(166, 106, 103, 23);
+		chckbxNewCheckBox.setOpaque(false);
+		panel.add(chckbxNewCheckBox);
+		
+		JButton btnNewButton = new JButton("New button");
+		btnNewButton.setBounds(113, 156, 93, 23);
+		panel.add(btnNewButton);
+	}
+	
+	public class MyPanel extends JPanel{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		public void paintComponent(Graphics g){
+			g.setColor(Color.black);
+			g.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 10, 10);
+		}
+		
+	}
+}

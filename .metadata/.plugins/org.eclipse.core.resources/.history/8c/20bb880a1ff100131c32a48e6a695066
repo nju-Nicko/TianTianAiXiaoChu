@@ -1,0 +1,34 @@
+package presentation.gameui;
+
+import java.util.Scanner;
+/*该方法类实现功能：
+ * 1，每当有移动产生时即gameRange发生变化时，lastDoubleHitTime和lastTwoHitTime刷新
+ * */
+public class singleGameGUI_getMoveThread extends Thread {
+	private singleGameGUI game;
+	public singleGameGUI_getMoveThread(singleGameGUI game){
+		this.game=game;
+	}
+	@Override
+	public void run(){
+
+			//获得移动 来源两个发面方法返回和对面远程获得
+		while(true){
+			//接受对面移动的信息
+			if(game.state==1){//还有判断对面是否准备好，player说方法中有判断方法
+				
+			}
+			if(game.state==1)
+			try {
+				sleep(30);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+				
+			
+		
+	}
+
+}

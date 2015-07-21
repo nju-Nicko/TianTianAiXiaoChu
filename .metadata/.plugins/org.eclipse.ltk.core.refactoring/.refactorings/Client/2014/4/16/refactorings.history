@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;businesslogic.datamanagement.DataManagementblservice.java&apos; to &apos;DataManagementblservice_Stub.java&apos;&#x0D;&#x0A;- Original project: &apos;Client&apos;&#x0D;&#x0A;- Original element: &apos;businesslogic.datamanagement.DataManagementblservice.java&apos;&#x0D;&#x0A;- Renamed element: &apos;businesslogic.datamanagement.DataManagementblservice_Stub.java&apos;" description="Rename compilation unit &apos;DataManagementblservice.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;businesslogic.datamanagement{DataManagementblservice.java" name="DataManagementblservice_Stub.java" references="false" stamp="1397664887458" version="1.0"/>
+</session>

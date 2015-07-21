@@ -1,0 +1,18 @@
+package test;
+
+import message.Message;
+
+public class TestMessage2 extends Message{
+	
+	String info;
+	String id;
+	String hahaha;
+	
+	public TestMessage2(){
+		type=-1000;
+		info="´ºÀö";
+		id="dog";
+		hahaha="lll";
+	}
+
+}

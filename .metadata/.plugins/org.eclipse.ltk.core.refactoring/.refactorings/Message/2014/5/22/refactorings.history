@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;message.getUpdateInfo.java&apos; to &apos;GetUpdateInfo.java&apos;&#x0D;&#x0A;- Original project: &apos;Message&apos;&#x0D;&#x0A;- Original element: &apos;message.getUpdateInfo.java&apos;&#x0D;&#x0A;- Renamed element: &apos;message.GetUpdateInfo.java&apos;" description="Rename compilation unit &apos;getUpdateInfo.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src&lt;message{getUpdateInfo.java" name="GetUpdateInfo.java" references="false" stamp="1401009337159" version="1.0"/>
+</session>

@@ -1,0 +1,21 @@
+package gamemessage;
+
+import game.Position;
+import message.Message;
+
+public class PkChangePositionBackMessage extends Message {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public boolean isSelf;
+	public Position p1;
+	public Position p2;
+	
+	public PkChangePositionBackMessage() {
+		type = 1214;
+	}
+
+}

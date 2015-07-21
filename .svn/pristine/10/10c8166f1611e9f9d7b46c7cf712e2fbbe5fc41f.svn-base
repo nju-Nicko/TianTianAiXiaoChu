@@ -1,0 +1,35 @@
+package presentation_pkGameGUI;
+
+import java.awt.Font;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+
+public class pkGameGUI_musicProject {
+	public void start(){
+	JFrame musicframe=new JFrame();
+	musicframe.setTitle("音乐选项");
+	musicframe.setLocationRelativeTo(null);
+	musicframe.setSize(300,300);
+	musicframe.setUndecorated(true);
+	//musicframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	musicframe.setVisible(true);
+	musicframe.add(new JLabel("音乐相关操作"));
+	musicframe.setLocationRelativeTo(null);
+	musicframe.setFont(new Font("微软雅黑", Font.PLAIN, 18));
+	musicframe.setVisible(true);
+	JLayeredPane layeredpane=new JLayeredPane();                                //重要
+	layeredpane.setBounds(0,0,musicframe.getWidth(),musicframe.getHeight());
+	layeredpane.setLayout(null);
+	musicframe.add(layeredpane);
+	
+	JPanel pane=new JPanel();
+	pane.setBounds(0,0,300,300);
+	pane.setOpaque(false);
+	pane.setLayout(null);
+	layeredpane.add(pane);
+	
+	}
+}

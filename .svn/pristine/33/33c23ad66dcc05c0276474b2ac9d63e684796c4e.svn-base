@@ -1,0 +1,22 @@
+package presentation.gameui;
+
+public class updategui extends Thread{
+	collaborationGameGUI game;
+	public updategui(collaborationGameGUI game){
+		this.game=game;
+	}
+	@Override
+	public void run(){
+		while(true){
+			game.frame.repaint();
+			game.frame.validate();
+			try {
+				sleep(2);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	
+		}
+}

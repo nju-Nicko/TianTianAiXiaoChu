@@ -1,0 +1,18 @@
+package gamemessage;
+
+import game.GameStateFuBen;
+import message.Message;
+
+public class PkGameStateMessage extends Message {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public GameStateFuBen gamestate;
+	
+	public PkGameStateMessage() {
+		this.type = 118;
+	}
+}
