@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename package &apos;friendsmanagement&apos; to &apos;data.friendsmanagement&apos;&#x0D;&#x0A;- Original project: &apos;Server&apos;&#x0D;&#x0A;- Original element: &apos;Server/src/friendsmanagement&apos;&#x0D;&#x0A;- Renamed element: &apos;Server/src/data.friendsmanagement&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename package &apos;friendsmanagement&apos;" flags="589830" hierarchical="false" id="org.eclipse.jdt.ui.rename.package" input="/src&lt;friendsmanagement" name="data.friendsmanagement" qualified="false" references="true" stamp="1398613281960" textual="false" version="1.0"/>
-</session>
